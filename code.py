@@ -441,3 +441,13 @@ if __name__ == "__main__":
 #Make a factory and register it.
 #
 #This design is now SRP-compliant, highly extensible, loosely coupled, and OOP-complete.
+
+
+
+########################################################################
+#
+#Modules to Extend
+#Modify strategy_connection.py: You must add a new class, MySQLConnectionStrategy, to this module. This class will implement the IConnectionStrategy interface to handle MySQL connections, ensuring consistency with how Oracle and Snowflake strategies are defined in the same file.
+#New Modules to Create
+#Create config_mysql.py: This new module will contain MySQLConfig (a dataclass for MySQL configuration) and MySQLConfigBuilder (implementing IDatabaseConfigBuilder). It will define how MySQL connections are configured, similar to config_oracle.py and config_snowflake.py.
+#Create mysql_factory.py: This module will include MySQLReader, MySQLWriter, MySQLTransactionManager, and MySQLFactory, with the factory registered using DatabaseFactoryRegistry.register_factory('mysql', MySQLFactory()). This follows the pattern seen in oracle_factory.py and snowflake_factory.py.
