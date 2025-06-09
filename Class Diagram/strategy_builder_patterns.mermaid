@@ -1,0 +1,131 @@
+classDiagram
+    %% Strategy Pattern - Connection Strategy
+    class IConnectionStrategy {
+        <<interface>>
+        +create_pool(config: DatabaseConfig) IConnectionPool
+    }
+    
+    class OracleConnectionStrategy {
+        -driver_loader: IDatabaseDriverLoader
+        +__init__(driver_loader: IDatabaseDriverLoader)
+        +create_pool(config: DatabaseConfig) IConnectionPool
+    }
+    
+    class SnowflakeConnectionStrategy {
+        -driver_loader: IDatabaseDriverLoader
+        +__init__(driver_loader: IDatabaseDriverLoader)
+        +create_pool(config: DatabaseConfig) IConnectionPool
+    }
+    
+    IConnectionStrategy <|-- OracleConnectionStrategy
+    IConnectionStrategy <|-- SnowflakeConnectionStrategy
+    
+    %% Strategy Pattern - Config Validation
+    class ConfigValidator {
+        <<abstract>>
+        +get_validator(db_type: str) ConfigValidator
+        +validate(config: DatabaseConfig) void
+    }
+    
+    class OracleConfigValidator {
+        +validate(config: DatabaseConfig) void
+    }
+    
+    class SnowflakeConfigValidator {
+        +validate(config: DatabaseConfig) void
+    }
+    
+    ConfigValidator <|-- OracleConfigValidator
+    ConfigValidator <|-- SnowflakeConfigValidator
+    
+    %% Builder Pattern - Configuration Builders
+    class IDatabaseConfigBuilder {
+        <<interface>>
+        +build() DatabaseConfig
+    }
+    
+    class DatabaseConfigBuilder {
+        #config: DatabaseConfig
+        +__init__(db_type: str)
+        +with_connection_param(key: str, value: Any) DatabaseConfigBuilder
+        +with_connection_params(params: Dict) DatabaseConfigBuilder
+        +with_pool_setting(key: str, value: Any) DatabaseConfigBuilder
+        +with_pool_settings(settings: Dict) DatabaseConfigBuilder
+        +with_query_setting(key: str, value: Any) DatabaseConfigBuilder
+        +with_query_settings(settings: Dict) DatabaseConfigBuilder
+        +build() DatabaseConfig
+    }
+    
+    class OracleConfigBuilder {
+        +__init__()
+        +with_host(host: str) OracleConfigBuilder
+        +with_port(port: int) OracleConfigBuilder
+        +with_service_name(service_name: str) OracleConfigBuilder
+        +with_credentials(username: str, password: str) OracleConfigBuilder
+        +with_pool_size(min_size: int, max_size: int, increment: int) OracleConfigBuilder
+        +with_fetch_settings(fetch_size: int, batch_size: int) OracleConfigBuilder
+    }
+    
+    class SnowflakeConfigBuilder {
+        +__init__()
+        +with_account(account: str) SnowflakeConfigBuilder
+        +with_credentials(user: str, password: str) SnowflakeConfigBuilder
+        +with_warehouse(warehouse: str) SnowflakeConfigBuilder
+        +with_database(database: str, schema: str) SnowflakeConfigBuilder
+    }
+    
+    IDatabaseConfigBuilder <|-- DatabaseConfigBuilder
+    DatabaseConfigBuilder <|-- OracleConfigBuilder
+    DatabaseConfigBuilder <|-- SnowflakeConfigBuilder
+    
+    %% Product class for Builder Pattern
+    class DatabaseConfig {
+        +db_type: str
+        +connection_params: Dict[str, Any]
+        +pool_settings: Dict[str, Any]
+        +query_settings: Dict[str, Any]
+        +validate() void
+    }
+    
+    DatabaseConfigBuilder --> DatabaseConfig : creates
+    OracleConfigBuilder --> DatabaseConfig : creates
+    SnowflakeConfigBuilder --> DatabaseConfig : creates
+    
+    %% Strategy Pattern Context Classes
+    class DatabaseService {
+        -config_provider: IConfigurationProvider
+        -driver_loader: IDatabaseDriverLoader
+        +create_session(db_type: str) DatabaseSession
+    }
+    
+    DatabaseService --> IConnectionStrategy : uses
+    
+    %% Relationships with Config Validation
+    DatabaseConfig --> ConfigValidator : uses for validation
+    OracleConfigValidator --> DatabaseConfig : validates
+    SnowflakeConfigValidator --> DatabaseConfig : validates
+    
+    %% Additional Strategy Pattern - Factory Pattern (Brief)
+    class AbstractDatabaseFactory {
+        <<abstract>>
+        +create_connection_strategy(driver_loader) IConnectionStrategy
+    }
+    
+    class OracleFactory {
+        +create_connection_strategy(driver_loader) IConnectionStrategy
+    }
+    
+    class SnowflakeFactory {
+        +create_connection_strategy(driver_loader) IConnectionStrategy
+    }
+    
+    AbstractDatabaseFactory <|-- OracleFactory
+    AbstractDatabaseFactory <|-- SnowflakeFactory
+    
+    OracleFactory --> OracleConnectionStrategy : creates
+    SnowflakeFactory --> SnowflakeConnectionStrategy : creates
+    
+    %% Notes and Styling
+    note for IConnectionStrategy "Strategy Pattern:\nDefines algorithm family for\ncreating connection pools"
+    note for IDatabaseConfigBuilder "Builder Pattern:\nStep-by-step construction\nof DatabaseConfig objects"
+    note for ConfigValidator "Strategy Pattern:\nValidation strategies for\ndifferent database types"

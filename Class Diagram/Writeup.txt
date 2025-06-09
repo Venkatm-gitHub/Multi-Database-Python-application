@@ -1,0 +1,27 @@
+Key Design Patterns Implemented:
+
+Abstract Factory Pattern: AbstractDatabaseFactory with concrete implementations for Oracle and Snowflake
+Builder Pattern: DatabaseConfigBuilder with database-specific builders
+Strategy Pattern: IConnectionStrategy with different connection strategies
+Template Method Pattern: Error handling with DatabaseErrorHandler
+Dependency Injection: DIContainer for managing dependencies
+Session Pattern: DatabaseSession for resource management
+Context Manager Pattern: TransactionContext for transaction management
+
+Main Components:
+
+Configuration Layer: Builders and validators for database-specific configurations
+Connection Management: Pool-based connection handling with strategies
+Database Operations: Separate readers, writers, and transaction managers
+Error Handling: Standardized exception hierarchy with database-specific handling
+Factory System: Registry-based factory pattern for creating database components
+Service Layer: Main DatabaseService orchestrating everything
+
+Key Relationships:
+
+Interface segregation with focused, single-responsibility interfaces
+Composition over inheritance for flexibility
+Standardized error handling across all database types
+Resource management through context managers and proper cleanup
+
+The framework provides a clean abstraction layer that allows switching between different database types (Oracle, Snowflake) while maintaining consistent APIs and behavior patterns.
